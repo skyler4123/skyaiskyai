@@ -1,0 +1,33 @@
+services:
+  # 1. Vector Database (Used for testing RAG features directly in the UI)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: skycom-vector-db
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # 2. Web UI (Connecting to external Ollama via IP 192.168.0.100)
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: skycom-chat-portal
+    restart: always
+    ports:
+      - "3000:8080"
+    environment:
+      # Direct connection to the Ollama host machine
+      - OLLAMA_BASE_URL=http://192.168.0.100:11434
+      - WEBUI_SECRET_KEY=skycom_2026_secret
+      # Automatically link the Vector DB within the Docker network
+      - VECTOR_DB=qdrant
+      - QDRANT_HOST=qdrant
+    volumes:
+      - open-webui_data:/app/backend/data
+    depends_on:
+      - qdrant
+
+volumes:
+  qdrant_data:
+  open-webui_data:
