@@ -1,4 +1,23 @@
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      # - OLLAMA_KEEP_ALIVE=24h # Keep models in VRAM/RAM longer to avoid reloading delays
+      - OLLAMA_ORIGINS=* # Required for cross-origin API requests
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all # Allow Ollama to utilize all available GPUs
+    #           capabilities: [gpu]
+
   # 1. Vector Database (Used for testing RAG features directly in the UI)
   qdrant:
     image: qdrant/qdrant:latest
@@ -29,5 +48,6 @@ services:
       - qdrant
 
 volumes:
+  ollama_data:
   qdrant_data:
   open-webui_data:
